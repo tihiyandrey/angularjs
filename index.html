@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	
+	<!-- Font Awesome CSS -->
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	
+	<!-- Our CSS -->
+	<style>
+		body > .container, table{
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+		
+		img.img-thumbnail {
+			max-width: 100%;
+		}
+		
+		.vertical-line-right {
+			padding-right:20px; 
+			border-right: 2px solid #ccc;
+		}
+		
+		.fa.fa-star {
+			color: orange;
+		}
+		
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular.min.js"></script>
+	<script>
+		var url = "http://files.courses.dp.ua/web/json/data01.php";
+
+		var app = angular.module("SHOP", []);
+		app.controller("SHOPcontroller", function($scope, $http){
+
+			$scope.min = 1;
+			$scope.max = 999999;
+
+			var promise = $http.get(url);
+			promise.then(function(answer){
+				$scope.phones = answer.data;
+
+				var min, max;
+				$scope.phones.forEach(function(item) {
+					var price = parseInt(item.price);
+					min = (price < min || !min) ? price : min;
+					max = (price > max || !max) ? price : max;
+				});
+
+				$scope.min = min;
+				$scope.max = max;
+
+				$scope.low = min;
+				$scope.high = max;
+			});
+
+			$scope.filter = function(item) {
+				var price = parseInt(item.price);
+				return (price >= $scope.low) && (price <= $scope.high);
+			}
+
+			$scope.control_low = function() {
+				if($scope.low > $scope.high) {
+					$scope.high = $scope.low;
+				}
+			}
+			$scope.control_high = function() {
+				if($scope.high < $scope.low) {
+					$scope.low = $scope.high;
+				}
+			}
+		});
+	</script>
+</head>
+<body>
+    <div class="container" ng-app="SHOP" ng-controller="SHOPcontroller">
+	
+		<div class="row">
+		
+			<div class="col-md-12">
+				<div class="jumbotron jumbotron-fluid">
+				  <div class="container">
+				  <div class="row">
+					<div class="col-3 text-center">
+						<img class="img-thumbnail" src="http://www.clipartbest.com/cliparts/xig/ojj/xigojj5jT.jpeg">
+					</div>
+					<div class="col-8 text-justify">
+						<h1 class="display-3">Perfect Mobile Shop</h1>
+						<p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc consequat leo sed ligula convallis, in volutpat arcu maximus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque efficitur odio vitae leo vestibulum pretium. </p>
+					</div>
+					</div>
+				  </div>
+				</div>
+			</div>
+		
+			<div class="col-md-8 vertical-line-right">
+				<select ng-model="sort" class="form-control form-control-lg col-6">
+					<option selected value="">Select sort type</option>
+					<option value="price">Price UP</option>
+					<option value="-price">Price DOWN</option>  
+					<option value="rating">Rating UP</option>
+					<option value="-rating">Rating DOWN</option>	  
+				</select>
+				
+				
+				<table class="table">
+					
+					<!-- One Phone -->
+					<tr ng-repeat="phone in phones | orderBy:sort | filter:search | filter:filter" >
+						<td><b>{{phone.title}}</b></td>
+						<td><i class="fa fa-star"></i> {{phone.rating}}</td>
+						<td>{{phone.price}}</td>
+						<td><button class="btn btn-success">Buy It!</button></td>
+					</tr>
+					<!-- /One Phone -->
+					
+				</table>	
+			</div>
+			
+			<div class="col-md-4 hidden-sm-down">
+				<div class="row">
+					<div class="col-12">
+						<h4>Price filter from {{low}}$ to {{high}}$ </h4>
+					</div>
+					<div class="col-4">
+						<input min="{{min}}" max="{{max}}" ng-model="low" type="range" ng-change="control_low()">
+					</div>
+					<div class="col-4 offset-2">
+						<input min="{{min}}" max="{{max}}" ng-model="high" type="range" ng-change="control_high()">
+						
+					</div>
+					<div class="col-11">
+						<hr>
+					</div>
+					<div class="col-8">
+						<h4><input type="text" ng-model="search" placeholder="Search by title"></h4>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+		<!-- /.row -->
+	
+	</div>
+	<!-- /.container -->
+</body>
+</html>
